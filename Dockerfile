@@ -1,11 +1,11 @@
-FROM node:alpine AS builder
+FROM node:8.16.0-alpine AS builder
 WORKDIR /src
 COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
 
-FROM alpine
+FROM node:8.16.0-alpine
 WORKDIR /src
 COPY --from=builder /src /src
 
