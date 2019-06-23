@@ -18,7 +18,7 @@ This service allows to manage a waiting list based on one-time-tokens. It allows
 
 # Routes
 
-## `POST /generateTokens`
+## `POST /genearteTokens`
 
 This route allows to retrieve tokens from the service.
 

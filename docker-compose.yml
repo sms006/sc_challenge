@@ -1,0 +1,20 @@
+#This file with creds is obviously not supposed to be pushed to a public repo.
+#It is only for the interview purposes
+version: '3'
+services:
+  web-service:
+    build: .
+    ports:
+      - "5000:10000"
+    depends_on:
+      - postgres-db
+    environment:
+      - DATABASE_URL=postgres://postgres:root@127.0.0.1:5432/postgres
+      - PORT=10000
+  postgres-db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=postgres
+    
