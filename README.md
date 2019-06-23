@@ -1,66 +1,53 @@
-# Waitinglist
+1. Create a Dockerfile for the service - optimise for image size and build time - for both: less is 
+better. 
 
-This service allows to manage a waiting list based on one-time-tokens. It allows to generate tokens that can be handed out to users. If a token is used, the service verifies that it is still valid and marks the token as invalid.
+To achieve this, firstly I have used a smaller image (8.16.0-alpine) and secondly I have taken just the 
+binary of the first built contianter spun a second container which has only the binary and hence smaller
 
-# Preparation
+2. Create a docker-compose file that allows to run the service without having a local dependency to 
+postgres. Furthermore, removing the manual step in testing: "1. start the service, 2. test it" would 
+raise the automatibility of the testing.
 
-## Postgres
-* Install and run a postgres DB and configure values in `config.json`
-* Prepare DB by running `init-sql.db` against database (e.g. `psql -h localhost -U postgres postgres -f init-db.sql`)
+To achieve this I have spun another container having a postgres server and made a connection from the 
+container which runs our service.
+To solve the second aspect my best guess would be to run the "npm test" command in the Dockerfile. 
 
-## Development
-* Run `npm install` to install dependencies
-* Run `npm run dev` to run your files with ts-node
+3. Using `config.json` for service configuration works well in a local file system or with a "static" 
+configuration. In a production scenario we need a better way to configure the service. Please think of
+ a good approach and prepare / implement.
 
-## Production
-* Run `npm run build` to transpile ts code to javascript (`dist` folder)
-* Run `npm start` to transpile and run the javascript code
+Not solved.
 
-# Routes
+4. Prepare the service for a CI/CD scenario: Please create two scripts to act as interface for a CI/CD 
+service:
 
-## `POST /genearteTokens`
+  * `test.sh`: should verify that the functional properties of the service are as expected.
 
-This route allows to retrieve tokens from the service.
+    file committed
 
-Body:
-```
-{
-  "number_of_requested_tokens": 12
-}
-```
+  * `build.sh`: should create a productiom ready docker image.
 
-Response:
-* `HTTP 200` with body
-```
-{
-  "tokens":[
-    "token1",
-    "token2",
-    // ...
-  ]
-}
-```
+    file committed
 
-`curl -XPOST -H'Content-type: application/json' -d '{"number_of_requested_tokens":12}' localhost:10000/generateTokens`
+5. To assist future development on the service, bring automation into place that helps to create high 
+quality code. Add a script `quality.sh` that applies checks and tests to keep / improve the quality of 
+the service. To give some inspiration: linting, checks for code smells, security checks, pretty 
+printing, ...
 
-## `POST /useToken`
+Unfortunately I'm not familiar with these concepts and would probably need some time to learn 
+implement them.
 
-This route is used to check the validity of a token and mark it as used.
+6. How would you design the CI/CD pipeline for our service? Please give a brief overview of the steps the service would need to go through to make his way from "commit pushed to repository" to "service is running in production".
 
-Body:
-```
-{
-  "token": "token1"
-}
-```
+Since Stocard's infra is on AWS it may make sense to design our pipeline with their CI/CD services.
+The AWS service which can be used for our case could be CodePipeline. 
 
-Reponse:
-* `HTTP 204`: token is valid
-* `HTTP 404`: token is is unknown
-* `HTTP 401`: token was already used
+  1. The developer commits a feature of the service to github/ CodeCommit repository.
+  2. We can then use CodeBuild (AWS offering similiar to jenkins) to build our recently committed code. 
+  We can specify the build specification in our buildspec.yml file
+  3. The built artifact can now be directly 'deployed' using the CodeDeploy service or stored in an s3 bucket. 
+  4. Using a service such as AWS elastic beanstalk instance we can then run our built artifact that is stored in the bucket. 
 
-`curl -XPOST -H'Content-type: application/json' -d '{"token":"0834ba88-30b8-4a62-9879-470f2418275b"}' localhost:10000/useToken -v`
 
-# Tests
-* Run the service: `npm start`
-* Run the tests once the server is up: `npm test`
+
+
