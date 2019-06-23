@@ -48,6 +48,5 @@ The AWS service which can be used for our case could be CodePipeline.
   3. The built artifact can now be directly 'deployed' using the CodeDeploy service or stored in an s3 bucket. 
   4. Using a service such as AWS elastic beanstalk instance we can then run our built artifact that is stored in the bucket. 
 
-
-
+The secreenshots folder contains pictures of the reduction in the size of the images after using an alpine image (236MB) and finally after using a multi-stage build process (140MB).
 
